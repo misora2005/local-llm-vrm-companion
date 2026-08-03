@@ -74,7 +74,7 @@
 ### インストール
 
 ```bash
-git clone https://github.com/misora2005/local-llm-vrm-companion.git
+git clone https://github.com/sora-mikawa/local-llm-vrm-companion.git
 cd local-llm-vrm-companion
 pip install -r requirements.txt
 ```
