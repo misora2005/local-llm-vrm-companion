@@ -1,0 +1,7 @@
+PySide6
+PySide6-WebEngine
+ollama
+requests
+sounddevice
+soundfile
+numpy

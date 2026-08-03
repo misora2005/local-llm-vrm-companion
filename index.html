@@ -1,0 +1,83 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>VRM Viewer with Import Map + Chat</title>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    canvas { width: 100%; height: 100vh; display: block; }
+  </style>
+
+  <!-- import map は js ファイルより前に記載 -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "./build/three.module.js"
+      }
+    }
+  </script>
+</head>
+<body>
+  <canvas id="webgl"></canvas>
+
+  <!-- main.js をモジュールとして読み込む -->
+  <script type="module" src="./main.js"></script>
+
+  <!-- PySide6 QWebChannel -->
+  <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
+  <script>
+    // Fallback動作管理
+    let hasPlaybackSignals = false;
+    let fallbackStopTimer = null;
+
+    new QWebChannel(qt.webChannelTransport, function(channel) {
+      window.bridge = channel.objects.bridge;
+
+      // playbackStarted/playbackEnded があるか試しに接続（ある場合 hasPlaybackSignals=true）
+      try {
+        if (bridge.playbackStarted) {
+          bridge.playbackStarted.connect(() => {
+            console.log("Playback started (from Python).");
+            hasPlaybackSignals = true;
+            // main.js 側の lip sync を呼ぶ
+            if (window.startLipSync) window.startLipSync();
+            // フォールバックタイマがあればクリア
+            if (fallbackStopTimer) { clearTimeout(fallbackStopTimer); fallbackStopTimer = null; }
+          });
+        }
+      } catch (e) { /* ignore */ }
+
+      try {
+        if (bridge.playbackEnded) {
+          bridge.playbackEnded.connect(() => {
+            console.log("Playback ended (from Python).");
+            hasPlaybackSignals = true;
+            if (window.stopLipSync) window.stopLipSync();
+            if (fallbackStopTimer) { clearTimeout(fallbackStopTimer); fallbackStopTimer = null; }
+          });
+        }
+      } catch (e) { /* ignore */ }
+
+      // Python → JS の返答受信（テキスト）
+      bridge.sendText.connect(function(msg) {
+        console.log("Gemini says:", msg);
+
+        // もし playbackStarted/playbackEnded 信号が存在すればそれに任せる（start/stopはPythonが出す）
+        // ない場合は簡易フォールバックで start -> 5秒で stop
+        if (!hasPlaybackSignals) {
+          console.log("No playback signals available — using fallback lip sync (5s).");
+          if (window.startLipSync) window.startLipSync();
+          if (fallbackStopTimer) clearTimeout(fallbackStopTimer);
+          fallbackStopTimer = setTimeout(() => {
+            if (window.stopLipSync) window.stopLipSync();
+            fallbackStopTimer = null;
+          }, 5000);
+        }
+
+        // （UI）必要ならここで表示更新など行う
+        // 例: document.getElementById("chat").innerText = msg;
+      });
+    });
+  </script>
+</body>
+</html>
