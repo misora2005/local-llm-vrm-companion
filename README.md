@@ -82,7 +82,7 @@ pip install -r requirements.txt
 使用するLLMモデルを事前にpullしておいてください。
 
 ```bash
-ollama pull <使用するモデル名>
+ollama pull schroneko/gemma-2-2b-jpn-it:q8_0
 ```
 
 ### 起動
