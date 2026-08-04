@@ -27,7 +27,6 @@ import ollama
 
 
 # 簡易HTTPサーバー
-
 def start_server(directory, port=8000):
     os.chdir(directory)
     handler = SimpleHTTPRequestHandler
@@ -39,7 +38,6 @@ def start_server(directory, port=8000):
 
 
 # VOICEVOX設定
-
 VOICEVOX_URL = "http://localhost:50021"
 
 # VOICEVOXのデフォルトサンプルレート（audio_queryのoutputSamplingRateと合わせる）
@@ -47,7 +45,6 @@ AUDIO_SAMPLERATE = 24000
 
 
 # 常時オープンする出力ストリーム（グローバルで1つ保持）
-
 output_stream = sd.OutputStream(
     samplerate=AUDIO_SAMPLERATE,
     channels=1,
@@ -61,7 +58,6 @@ stream_lock = threading.Lock()
 
 
 # 最初の一文を取得
-
 def get_first_sentence(text):
     """最初の一文（。！？!?のいずれかまで）を取得する"""
     match = re.search(r".+?。", text)
@@ -71,7 +67,6 @@ def get_first_sentence(text):
 
 
 # 絵文字を除去（行間崩れ対策）
-
 def strip_emoji(text: str) -> str:
     """絵文字を除去する（行間崩れ対策）"""
     emoji_pattern = re.compile(
@@ -86,7 +81,6 @@ def strip_emoji(text: str) -> str:
 
 
 # VOICEVOX 音声合成・再生（常時オープンストリーム版）
-
 def synthesize_and_play(text, speaker=47, bridge: QObject = None):
     """VOICEVOXで音声合成して再生する（別スレッドで実行）"""
 
@@ -166,7 +160,6 @@ def synthesize_and_play(text, speaker=47, bridge: QObject = None):
 
 
 # Ollama設定
-
 OLLAMA_MODEL = "schroneko/gemma-2-2b-jpn-it:q8_0"
 
 SYSTEM_PROMPT = """
@@ -187,7 +180,6 @@ SYSTEM_PROMPT = """
 
 
 # Python ⇔ JavaScript ブリッジ
-
 class Bridge(QObject):
     sendText = Signal(str)        # Python → JS
     newLog = Signal(str)          # Python → UI
@@ -261,7 +253,6 @@ class Bridge(QObject):
 
 
 # メインウィンドウ
-
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -372,7 +363,6 @@ class MainWindow(QMainWindow):
 
 
 # 起動
-
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
