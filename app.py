@@ -44,7 +44,7 @@ VOICEVOX_URL = "http://localhost:50021"
 AUDIO_SAMPLERATE = 24000
 
 
-# 常時オープンする出力ストリーム（グローバルで1つ保持）
+# 常時オープンする出力ストリーム
 output_stream = sd.OutputStream(
     samplerate=AUDIO_SAMPLERATE,
     channels=1,
